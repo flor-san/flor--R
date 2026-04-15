@@ -1,0 +1,186 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+#crear objetos de la clase numeric y verifique con class() y typeof()
+
+3-2i -> z
+class(z) #para saber que class de objeto es 
+
+x <- 3
+print(x) #imprime el valor 
+
+x <- 3
+class(x)
+
+mi_objeto <- 10.5
+typeof(mi_objeto) #cómo esta guardado el dato en la mememoria
+# lo devuelve en cadena de texto
+
+```
+```{r}
+#averigue crear un objeto de la clase integer 
+
+dato_entero <- 25L # almacena un numero como entero se le añade 'L'
+class(dato_entero)
+
+
+#is.intger ¿es este objeto de tipo entero? Devueleve True or False
+
+x <- 10 #lo trata como numeric 
+z <-10L
+is.integer(x)
+is.integer(z)
+
+#as.integer convierte el objeto a tipo entero. devuelve el numero transfomado(truncado)
+
+decimal <- 6.99 #elimina los decimales sin rendondear a 7
+decimal_tranformado <- as.integer(decimal)
+print(decimal_tranformado)
+```
+```{r}
+# qué son los objetos pi y exp(1)
+#pi :es una constante que contiene el valor 3.141593
+#exp(1): es la función exponencial evaluada en 1. devuekve el num. Euler 2.178282
+
+print(pi) #valor original 
+
+is.integer(pi) #es un entero? False
+
+pi_entero <- as.integer(pi) #convertir a entero
+print(pi_entero) 
+#devuelve el valor truncado
+
+e <- exp(1)#valor original
+print(e)
+
+e_entero<- as.integer(e) #convierte a entero
+print(e_entero) #elimina los decimales
+
+is.integer(e) #es un entero? False
+```
+```{r}
+#character 
+
+#print(): es una función de salida. imprime el objeto como esta. no une textos por si solo.
+
+#paste(): es una funcion que manipula varios elementos y lo transforma en una sola cadena de texto. devuelve un valor que se guarda en una variable.
+
+name <- 'Holadato22'
+class(name) #muestra el tipo objeto
+print(name) #muestra el dato nombrado
+typeof(name) #muestra el tipo de objeto
+
+a <- "coranados"
+b <- "de"
+c<- "gloria"
+
+espacio1 <- paste(a,b,c, sep =" ")
+print(espacio1)
+
+guion2 <- paste(a,b,c, sep = "-")
+print(guion2)
+
+sin_espacio <- paste(a,b,c, sep = "")
+print(sin_espacio)
+
+```
+```{r}
+#logical Tabla de verdad not(p and q)((p or q)and c)
+
+p <- c(FALSE,FALSE,FALSE,FALSE,TRUE, TRUE,TRUE,TRUE)
+q <- c(FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,TRUE,TRUE)
+r <- c(FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE)
+
+#tabla de Y 
+tabla_y <- p & q
+print(tabla_y)
+
+#tabla de negacion de y
+
+tabla_not <- !(p &q)
+print(tabla_not)
+
+#tabla de or 
+
+tabla_or <- p|q
+print(tabla_or)
+
+#resultado final
+resultado1 <- tabla_or & r 
+
+print(resultado1)
+```
+
+```{r}
+#
+#  ¿Qué día Juliano es su cumpleaños?
+# ¿Cuántos días hay entre su último cumpleaños y hoy?
+#   ¿Cuántos días faltan para su próximo cumpleaños?
+#   ¿Cuánto tiempo ha transcurrido desde su nacimiento?
+
+mi_cumple <- as.Date("2002-09-29")
+hoy <- Sys.Date()
+ultimo_cumple <- as.Date("2025-09-29")
+proximo_cumple<- as.Date("2026-09-29")
+
+ #¿Qué día Juliano es su cumpleaños?
+format(mi_cumple, "%j") # dia juliano de 1 a 366 usando format(fecha, "%j")
+
+hoy - ultimo_cumple #¿Cuántos días hay entre su último cumpleaños y hoy?
+
+proximo_cumple - hoy #¿Cuántos días faltan para su próximo cumpleaños?
+
+difftime(hoy, mi_cumple, units = "days")#difftime calcula la diferencia de tiempo entre dos objetos de fecha o fecha-hora 
+
+
+```
+```{r}
+# DIEGO Maradona nacio 30 de octubre de 1960 fallecio 25 de noviembre de 2020
+#¿Cuánto tiempo vivió El Diego?
+
+nacio <- as.Date(1960-10-30)
+muerte <- as.Date(2020-11-25)
+
+muerte - nacio
+
+```
+
+```{r}
+expand.grid(p =c(FALSE,FALSE,TRUE, TRUE),
+q =c(FALSE,TRUE,FALSE,TRUE))
+logica$y  <- logica$p & logica$q
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+```{r}
+
+```
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
