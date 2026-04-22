@@ -134,18 +134,25 @@ proximo_cumple - hoy #¿Cuántos días faltan para su próximo cumpleaños?
 
 difftime(hoy, mi_cumple, units = "days")#difftime calcula la diferencia de tiempo entre dos objetos de fecha o fecha-hora 
 
-
-```
-```{r}
 # DIEGO Maradona nacio 30 de octubre de 1960 fallecio 25 de noviembre de 2020
 #¿Cuánto tiempo vivió El Diego?
-
+ 
 nacio <- as.Date(1960-10-30)
 muerte <- as.Date(2020-11-25)
 
 muerte - nacio
+#
+weekdays(nacio) # que día dela semana nacio?
+#
+format(muerte,"%V") #%V extrae el número de semana del año
 
+#abs calcula los valores absoluto de un objeto/ numero, removiendo los números negativos 
+#as.numeric funcion que convierte un objeto en tipo dato numérico 
+#/ 365.25 funcion que tiene r es una constante que representa el promedio en número de dias en un año 
+
+abs(as.numeric(mi_cumple-nacio))/ 365.25 # diferencia de edad
 ```
+
 
 ```{r}
 expand.grid(p =c(FALSE,FALSE,TRUE, TRUE),
@@ -154,6 +161,80 @@ logica$y  <- logica$p & logica$q
 
 ```
 
+```{r}
+#Vectores
+#-   Cree un vector con los días julianos correspondientes a 50, 100, 150, 200, 250, 300 y 350 días después de su último cumpleaños.
+#-   Cree un vector con los días de la semana (como palabras) corerspondientes a las fechas del inciso anterior.
+#-   Cree un vector con las superficies correspondientes a 5 cuadrados. El primer cuadrado tiene lados de 1m de largo, el segundo tiene lados el doble de largos que el cuadrado anterior, el tercero el triple del cuadrado del doble del inicial... y así sigue la serie. (es decir: 1, 2 * 1, 3 * 2 * 1, ...)
+#-   Cree un vector con los precios de 6 productos y otro con las cantidades vendidas de dichos productos. ¿Cuánto fué el ingreso total de las ventas?
+# Vector de 50 en 50 días después del mi último cumple
+library(lubridate)
+ultimo_cumple<- as.Date("2025-09-29")
+dias_julianos <- seq(50, 350, by = 50) # genera secuencias numéricas regulares de forma rápida. Sus argumentos principales incluyen from (inicio), to (final), by (incremento). en este caso con incremento: seq(from, to, by): Crea una secuencia del from al to incrementando por by
+print(dias_julianos)
+
+#fechas_futuras seran dias despues del cumpleaños
+fechas_futuras <- ultimo_cumple + dias_julianos
+print(fechas_futuras)
+
+# Días julianos de esas fechas
+julianos_futuros <- format(fechas_futuras, "%j")
+print(julianos_futuros)
+
+# Días de la semana como palabras
+
+semana_futura <- weekdays(fechas_futuras)
+print(semana_futura)
+
+# Superficies de cuadrados (Lado^2)
+lados <- factorial(1:5) # factorial (colon operator)generar secuencias regulares de números, generalmente enteros, con pasos de 1 o -1. a:b (genera una secuencia desde a hasta b
+print(lados)
+superficies <- lados^2 # operador ^ se utiliza para la potenciación (elevar un número o elemento a una potencia. Elevar un vector del factorial al cuadrado
+print(superficies)
+
+# Ingreso Total
+precios <- c(14, 45, 20, 75, 30, 35) #c() en R significa "combinar" o "concatenar". Es la forma fundamental para crear vectores (listas de datos de un mismo tipo) o agrupar valores, separándolos por comas dentro de los paréntesis.
+cantidades <- c(5, 2, 8, 1, 10, 4)
+ingreso_total <- sum(precios * cantidades)
+
+cat("El ingreso total fue:", ingreso_total) #cat(): Más flexible para concatenar texto y variables
+```
+```{r}
+ #Generador de secuencias
+#   Cree un vector de números del 21 al 354
+#  Cree un vector con una secuencia desde 0 hasta 700 saltando de a 7 usando la función seq()
+#   Cree el mismo vector anterior pero sin usar el método seq()
+
+vec_secuencia1 <- 21:354
+print(vec_secuencia1)
+
+vec_secuencia2 <- seq(0,700, by=7)
+print(vec_secuencia2)
+
+vec_secuencia3 <- (0:100) * 7 # genera una secuencia base y multiplicarla por el tamaño del salto deseado.Fórmula: (inicio:fin) * salto
+print(vec_secuencia3) 
+```
+```{r}
+#Acceder a los elementos de un vector
+#   ¿Cuál es la superficie del tercer cuadrado del ejercicio anterior?
+#   ¿Cuáles son los números desde el 5to al 9no de la serie que salta de a siete?
+#   Cree un vector que contenga las fechas correspondientes a los 100, 200 y 300 días posteriores a su último cumpleaños. No lo vuelva a calcular, rescate los valores del vector previamente creado.
+
+lados <- factorial(1:5) 
+
+superficies <- lados^2 
+vector <- superficies
+vector[1:3]
+
+vec_secuencia2 <- seq(0,700, by=7)
+vector <- vec_secuencia2
+vector[5:9]
+
+vector <- dias_julianos
+vector[2:6]
+
+
+```
 
 
 
