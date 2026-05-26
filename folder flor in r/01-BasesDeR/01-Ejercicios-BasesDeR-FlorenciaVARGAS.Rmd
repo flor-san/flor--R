@@ -235,14 +235,132 @@ vector[2:6]
 
 
 ```
+```{r}
+#matriz
+
+#Vector de precios de compra, 7 productoss
+precio_compra <- c(10,15,20,25,30,35,40)
+
+#matriz de precio de venta , 7 productos por 3 sucursales
+#variaciones de precio por sucursal
+precio_venta <- matrix(c(15,22,30,38,45,52,60, #sucursal 1 16, 23,31,39,46,53,61, #sucursl 2 14,2,29,37,44,51,59), #sucursal 3 nrow = 7, ncol =3
+
+#matriz de ventas realizadas (cantidades)
+ventas_cant <- matrix(sample(10:50, 21, replae = TRUE), nrow =7, ncol=3)
+
+#matriz de recaudacion(precio venta * cantidad)
+recaudacion <- precio_venta *ventas_cant
+
+#matriz de ganancias((precio venta - precio compra) * cantidad)
+#se resta el venctor de compra a cada columno de la matriz de venta
+ganancias <- (precio_venta - precio_compra) * ventas_cant
 
 
+```
+#aceso a elementoos
+```{r}
+#recaudacio y ganancias total
+recaudacion_total <- sum(recaudacion)
+ganancias_total <- sum(ganancias[,2])
 
+#sucursal 2. columna 2
+rec_suc2 <- sum(recaudacion[,2])
+gan_suc2 <- sum(ganancias[,2])
 
+#producto 6. fila 6 
+rec_prod6 <- sum(recaudacion[6,])
+gan_prod6 <- sum(ganancias[6, ])
 
+```
 
+##arrays inflacionn
+```{r}
+# Inflación del 7%
+inflacion <- 1.07
 
+# datos del mes siguiente (m2)
+recaudacion_m2 <- recaudacion * inflacion
+ganancias_m2 <- ganancias * inflacion
 
+# Construcción de Arrays (7 productos, 3 sucursales, 2 meses)
+arr_recaudacion <- array(c(recaudacion, recaudacion_m2), dim = c(7, 3, 2))
+arr_ganancias <- array(c(ganancias, ganancias_m2), dim = c(7, 3, 2))
+
+```
+
+#Acceso a elementos del Array
+```R
+# Recaudación y ganancia total en el mes 2 [fila, col, capa]
+total_rec_m2 <- sum(arr_recaudacion[, , 2])
+total_gan_m2 <- sum(arr_ganancias[, , 2])
+
+# Sucursal 3 en el mes 1
+rec_suc3_m1 <- sum(arr_recaudacion[, 3, 1])
+gan_suc3_m1 <- sum(arr_ganancias[, 3, 1])
+
+# Producto 2 en ambos meses
+rec_prod2_ambos <- sum(arr_recaudacion[2, , ])
+gan_prod2_ambos <- sum(arr_ganancias[2, , ])
+
+```
+
+# Estructuras Heterogéneas: Listas
+listas agrupa objetos de diferentes tipos o subconjuntos específicos.
+```R
+# Selección de productos 3 y 5 en el mes 2
+idx <- c(3, 5)
+resumen_lista <- list(
+  precio_compra = precios_compra[idx],
+  precio_venta = precios_venta[idx, ],
+  ventas = ventas_cant[idx, ],
+  recaudacion = arr_recaudacion[idx, , 2],
+  ganancias = arr_ganancias[idx, , 2]
+)
+
+#Accedeer a las ventas del producto 3 en la list
+#(Es el primer elemento del subconjunnto en la lista)
+ventas_p3_lista <- resumen_lista$ventas[1, ]
+
+```
+
+# Funciones 
+#Crear funciones
+```R
+# Ganancias totales de un producto elegido
+fn_ganancia_producto <- function(matriz_gan, producto_idx) {
+  sum(matriz_gan[producto_idx, ])
+}
+
+# Ganancias totales de una sucursal elegida
+fn_ganancia_sucursal <- function(matriz_gan, sucursal_idx) {
+  sum(matriz_gan[, sucursal_idx])
+}
+
+# Ganancias de un producto específico en una sucursal específica
+fn_ganancia_especifica <- function(matriz_gan, prod_idx, suc_idx) {
+  matriz_gan[prod_idx, suc_idx]
+}
+
+```
+
+#Guardar y Cargar 
+
+```R
+#Guardar en archivo externo
+calc_gan_prod <- function(m, p) sum(m[p, ])
+calc_gan_suc <- function(m, s) sum(m[, s])
+calc_gan_mix <- function(m, p, s) m[p, s]
+", file = "mis_funciones.R")
+
+#cargar funciones
+source("mis_funciones.R")
+
+# 3. Probar funcionalidad
+print(calc_gan_prod(ganancias, 1))
+print(calc_gan_suc(ganancias, 2))
+print(calc_gan_mix(ganancias, 1, 1))
+
+```
 
 
 
