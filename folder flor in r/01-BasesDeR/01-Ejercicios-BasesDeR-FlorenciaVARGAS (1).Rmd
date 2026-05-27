@@ -1,0 +1,398 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+#crear objetos de la clase numeric y verifique con class() y typeof()
+
+3-2i -> z
+class(z) #para saber que class de objeto es 
+
+x <- 3
+print(x) #imprime el valor 
+
+x <- 3
+class(x)
+
+mi_objeto <- 10.5
+typeof(mi_objeto) #cómo esta guardado el dato en la mememoria
+# lo devuelve en cadena de texto
+
+```
+```{r}
+#averigue crear un objeto de la clase integer 
+
+dato_entero <- 25L # almacena un numero como entero se le añade 'L'
+class(dato_entero)
+
+
+#is.intger ¿es este objeto de tipo entero? Devueleve True or False
+
+x <- 10 #lo trata como numeric 
+z <-10L
+is.integer(x)
+is.integer(z)
+
+#as.integer convierte el objeto a tipo entero. devuelve el numero transfomado(truncado)
+
+decimal <- 6.99 #elimina los decimales sin rendondear a 7
+decimal_tranformado <- as.integer(decimal)
+print(decimal_tranformado)
+```
+```{r}
+# qué son los objetos pi y exp(1)
+#pi :es una constante que contiene el valor 3.141593
+#exp(1): es la función exponencial evaluada en 1. devuekve el num. Euler 2.178282
+
+print(pi) #valor original 
+
+is.integer(pi) #es un entero? False
+
+pi_entero <- as.integer(pi) #convertir a entero
+print(pi_entero) 
+#devuelve el valor truncado
+
+e <- exp(1)#valor original
+print(e)
+
+e_entero<- as.integer(e) #convierte a entero
+print(e_entero) #elimina los decimales
+
+is.integer(e) #es un entero? False
+```
+```{r}
+#character 
+
+#print(): es una función de salida. imprime el objeto como esta. no une textos por si solo.
+
+#paste(): es una funcion que manipula varios elementos y lo transforma en una sola cadena de texto. devuelve un valor que se guarda en una variable.
+
+name <- 'Holadato22'
+class(name) #muestra el tipo objeto
+print(name) #muestra el dato nombrado
+typeof(name) #muestra el tipo de objeto
+
+a <- "coranados"
+b <- "de"
+c<- "gloria"
+
+espacio1 <- paste(a,b,c, sep =" ")
+print(espacio1)
+
+guion2 <- paste(a,b,c, sep = "-")
+print(guion2)
+
+sin_espacio <- paste(a,b,c, sep = "")
+print(sin_espacio)
+
+```
+```{r}
+#logical Tabla de verdad not(p and q)((p or q)and c)
+
+p <- c(FALSE,FALSE,FALSE,FALSE,TRUE, TRUE,TRUE,TRUE)
+q <- c(FALSE,FALSE,TRUE,TRUE,FALSE,FALSE,TRUE,TRUE)
+r <- c(FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE)
+
+#tabla de Y 
+tabla_y <- p & q
+print(tabla_y)
+
+#tabla de negacion de y
+
+tabla_not <- !(p &q)
+print(tabla_not)
+
+#tabla de or 
+
+tabla_or <- p|q
+print(tabla_or)
+
+#resultado final
+resultado1 <- tabla_or & r 
+
+print(resultado1)
+```
+
+```{r}
+#
+#  ¿Qué día Juliano es su cumpleaños?
+# ¿Cuántos días hay entre su último cumpleaños y hoy?
+#   ¿Cuántos días faltan para su próximo cumpleaños?
+#   ¿Cuánto tiempo ha transcurrido desde su nacimiento?
+
+mi_cumple <- as.Date("2002-09-29")
+hoy <- Sys.Date()
+ultimo_cumple <- as.Date("2025-09-29")
+proximo_cumple<- as.Date("2026-09-29")
+
+ #¿Qué día Juliano es su cumpleaños?
+format(mi_cumple, "%j") # dia juliano de 1 a 366 usando format(fecha, "%j")
+
+hoy - ultimo_cumple #¿Cuántos días hay entre su último cumpleaños y hoy?
+
+proximo_cumple - hoy #¿Cuántos días faltan para su próximo cumpleaños?
+
+difftime(hoy, mi_cumple, units = "days")#difftime calcula la diferencia de tiempo entre dos objetos de fecha o fecha-hora 
+
+# DIEGO Maradona nacio 30 de octubre de 1960 fallecio 25 de noviembre de 2020
+#¿Cuánto tiempo vivió El Diego?
+ 
+nacio <- as.Date(1960-10-30)
+muerte <- as.Date(2020-11-25)
+
+muerte - nacio
+#
+weekdays(nacio) # que día dela semana nacio?
+#
+format(muerte,"%V") #%V extrae el número de semana del año
+
+#abs calcula los valores absoluto de un objeto/ numero, removiendo los números negativos 
+#as.numeric funcion que convierte un objeto en tipo dato numérico 
+#/ 365.25 funcion que tiene r es una constante que representa el promedio en número de dias en un año 
+
+abs(as.numeric(mi_cumple-nacio))/ 365.25 # diferencia de edad
+```
+
+
+```{r}
+expand.grid(p =c(FALSE,FALSE,TRUE, TRUE),
+q =c(FALSE,TRUE,FALSE,TRUE))
+logica$y  <- logica$p & logica$q
+
+```
+
+```{r}
+#Vectores
+#-   Cree un vector con los días julianos correspondientes a 50, 100, 150, 200, 250, 300 y 350 días después de su último cumpleaños.
+#-   Cree un vector con los días de la semana (como palabras) corerspondientes a las fechas del inciso anterior.
+#-   Cree un vector con las superficies correspondientes a 5 cuadrados. El primer cuadrado tiene lados de 1m de largo, el segundo tiene lados el doble de largos que el cuadrado anterior, el tercero el triple del cuadrado del doble del inicial... y así sigue la serie. (es decir: 1, 2 * 1, 3 * 2 * 1, ...)
+#-   Cree un vector con los precios de 6 productos y otro con las cantidades vendidas de dichos productos. ¿Cuánto fué el ingreso total de las ventas?
+# Vector de 50 en 50 días después del mi último cumple
+library(lubridate)
+ultimo_cumple<- as.Date("2025-09-29")
+dias_julianos <- seq(50, 350, by = 50) # genera secuencias numéricas regulares de forma rápida. Sus argumentos principales incluyen from (inicio), to (final), by (incremento). en este caso con incremento: seq(from, to, by): Crea una secuencia del from al to incrementando por by
+print(dias_julianos)
+
+#fechas_futuras seran dias despues del cumpleaños
+fechas_futuras <- ultimo_cumple + dias_julianos
+print(fechas_futuras)
+
+# Días julianos de esas fechas
+julianos_futuros <- format(fechas_futuras, "%j")
+print(julianos_futuros)
+
+# Días de la semana como palabras
+
+semana_futura <- weekdays(fechas_futuras)
+print(semana_futura)
+
+# Superficies de cuadrados (Lado^2)
+lados <- factorial(1:5) # factorial generar secuencias regulares de números, generalmente enteros, con pasos de 1 o -1. a:b (genera una secuencia desde a hasta b
+print(lados)
+superficies <- lados^2 # operador ^  potenciación (elevar un número al cuadrado
+print(superficies)
+
+# Ingreso Total
+precios <- c(14, 45, 20, 75, 30, 35) #c() en R significa concatenar. 
+cantidades <- c(5, 2, 8, 1, 10, 4)
+ingreso_total <- sum(precios * cantidades)
+
+cat("El ingreso total fue:", ingreso_total) #cat(): flexible para concatenar texto y variables
+```
+```{r}
+ #Generador de secuencias
+#   Cree un vector de números del 21 al 354
+#  Cree un vector con una secuencia desde 0 hasta 700 saltando de a 7 usando la función seq()
+#   Cree el mismo vector anterior pero sin usar el método seq()
+
+vec_secuencia1 <- 21:354
+print(vec_secuencia1)
+
+vec_secuencia2 <- seq(0,700, by=7)
+print(vec_secuencia2)
+
+vec_secuencia3 <- (0:100) * 7 # genera una secuencia base y multiplicarla por el tamaño del salto deseado.Fórmula: (inicio:fin) * salto
+print(vec_secuencia3) 
+```
+```{r}
+#Acceder a los elementos de un vector
+#   ¿Cuál es la superficie del tercer cuadrado del ejercicio anterior?
+#   ¿Cuáles son los números desde el 5to al 9no de la serie que salta de a siete?
+#   Cree un vector que contenga las fechas correspondientes a los 100, 200 y 300 días posteriores a su último cumpleaños. No lo vuelva a calcular, rescate los valores del vector previamente creado.
+
+lados <- factorial(1:5) 
+
+superficies <- lados^2 
+vector <- superficies
+vector[1:3]
+
+vec_secuencia2 <- seq(0,700, by=7)
+vector <- vec_secuencia2
+vector[5:9]
+
+vector <- dias_julianos
+vector[2:6]
+
+
+```
+```{r}
+
+#Vector de precios de comnpra (7 productos)
+precios_compra <- c(10, 15, 20, 25, 30, 35, 40)
+
+#Matrriz de precios de venta (7 productos x 3 sucursales)
+# variaciones de precio por sucursal
+precios_venta <- matrix(c(15, 22, 30, 38, 45, 52, 60,  # Sucursal 1
+                          16, 23, 31, 39, 46, 53, 61,  # Sucursal 2
+                          14, 21, 29, 37, 44, 51, 59), # Sucursal 3
+                        nrow = 7, ncol = 3)
+
+#Matriiz de venntas realizadas (Cantidades)
+ventas_cant <- matrix(sample(10:50, 21, replace = TRUE), nrow = 7, ncol = 3)
+print(ventas_cant)
+# Matriz de Recaudación (Precio Venta * Cantidad)
+recaudacion <- precios_venta * ventas_cant
+print(recaudacion)
+# Matriz de Gananncias ((PrecioVenta - PrecioCompra) * Cantidad )
+ganancias <- (precios_venta - precios_compra) * ventas_cant
+
+print(ganancias)
+```
+
+# Arrays:  Inflación
+
+```{r}
+# Inflación del 7%
+inflacion <- 1.07
+
+# datos del mes siguiente (m2)
+recaudacion_m2 <- recaudacion * inflacion
+ganancias_m2 <- ganancias * inflacion
+print(recaudacion_m2)
+print(ganancias_m2)
+
+# Construcción de Arrays (7 productos, 3 sucursales, 2 meses)
+arr_recaudacion <- array(c(recaudacion, recaudacion_m2), dim = c(7, 3, 2))
+arr_ganancias <- array(c(ganancias, ganancias_m2), dim = c(7, 3, 2))
+
+print(arr_recaudacion)
+print(arr_ganancias)
+```
+
+```{r}
+# Acceso a elementos del Array
+
+# Recaudación y ganancia total en el mes 2 [fila, col, capa]
+total_rec_m2 <- sum(arr_recaudacion[, , 2])
+total_gan_m2 <- sum(arr_ganancias[, , 2])
+
+print(total_rec_m2)
+print(total_gan_m2)
+
+# Sucursal 3 en el mes 1
+rec_suc3_m1 <- sum(arr_recaudacion[, 3, 1])
+gan_suc3_m1 <- sum(arr_ganancias[, 3, 1])
+print(rec_suc3_m1)
+print(gan_suc3_m1)
+
+# Producto 2 en ambos meses
+rec_prod2_ambos <- sum(arr_recaudacion[2, , ])
+gan_prod2_ambos <- sum(arr_ganancias[2, , ])
+print(rec_prod2_ambos)
+print(gan_prod2_ambos)
+
+```
+
+```{r}
+#Estructuras Heterogéneas: Listas
+
+# Selección de productos 3 y 5 en el mes 2
+idx <- c(3, 5)
+resumen_lista <- list(
+  precio_compra = precios_compra[idx],
+  precio_venta = precios_venta[idx, ],
+  ventas = ventas_cant[idx, ],
+  recaudacion = arr_recaudacion[idx, , 2],
+  ganancias = arr_ganancias[idx, , 2]
+)
+
+# Acceder a las vemtas del producto 3 en la lista
+# (Es el primer elemento del subconjunto en la lista)
+ventas_p3_lista <- resumen_lista$ventas[1, ]
+
+print(ventas_p3_lista)
+```
+
+
+```{r}
+# Funciones 
+#Crear funciones
+
+# Ganancias totales de un producto elegido
+fn_ganancia_producto <- function(matriz_gan, producto_idx) {
+  sum(matriz_gan[producto_idx, ])
+}
+
+# Ganancias totales de una sucursal elegida
+fn_ganancia_sucursal <- function(matriz_gan, sucursal_idx) {
+  sum(matriz_gan[, sucursal_idx])
+}
+
+# Ganancias de un producto específico en una sucursal especifica
+fn_ganancia_especifica <- function(matriz_gan, prod_idx, suc_idx) {
+  matriz_gan[prod_idx, suc_idx]
+}
+
+
+```
+
+```{r}
+#Guardar y Cargar 
+
+
+# Guardar en archivo externo
+cat("
+calc_gan_prod <- function(m, p) sum(m[p, ])
+calc_gan_suc <- function(m, s) sum(m[, s])
+calc_gan_mix <- function(m, p, s) m[p, s]
+", file = "mis_funciones.R")
+
+# cargar funciones
+source("mis_funciones.R")
+
+# 3. Probar funcionalidad
+print(calc_gan_prod(ganancias, 1))
+print(calc_gan_suc(ganancias, 2))
+print(calc_gan_mix(ganancias, 1, 1))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+```{r}
+
+```
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
