@@ -1,0 +1,164 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(DT)
+
+encuestadatos <- read_csv("C:/Users/estudiante/Downloads/Encuesta sobre el uso y percepción de la Inteligencia Artificial (respuestas) - Respuestas de formulario 1.csv")
+
+```
+
+```{r}
+
+#head(encuestadatos)
+#str(encuestadatos)
+glimpse(encuestadatos)
+datatable(encuestadatos)
+
+```
+```{r}
+names(encuestadatos)
+```
+
+```{r}
+library(stringr)
+encuesta_limpia <- encuestadatos %>%
+  mutate(
+    tiempo_ia_raw = str_to_lower(`¿Hace cuánto tiempo utilizas herramientas de Inteligencia Artificial?`),
+    
+    tiempo_ia_raw = stringi::stri_trans_general(tiempo_ia_raw, "Latin-ASCII"),
+    tiempo_ia_raw = str_trim(tiempo_ia_raw)
+  )
+```
+
+```{r}
+library(tidyverse)
+library(stringr)
+
+encuesta_limpia <- encuestadatos %>%
+  mutate(
+    tiempo_ia_raw = str_to_lower(`¿Hace cuánto tiempo utilizas herramientas de Inteligencia Artificial?`),
+    
+    tiempo_ia_raw = stringi::stri_trans_general(tiempo_ia_raw, "Latin-ASCII"),
+    tiempo_ia_raw = str_trim(tiempo_ia_raw),
+  
+    #poco/ recien
+    tiempo_ia_cat = case_when(
+      str_detect(tiempo_ia_raw,"poco|recien|comezando|empece| nada|nunca|este|")~ "menos de 6 meses",
+    #meses(1 a 11meses)
+
+    str_detect(tiempo_ia_raw, "mes|meses") ~ case_when(
+      str_detect(tiempo_ia_raw, "6|seis|7|8|9|10|11") ~"6 a 11 meses",
+      TRUE ~ "Menos de 6 meses"
+    ),
+    #años explicitos o fechas como "desde 3030
+    str_detect(tiempo_ia_raw,"2020|2021|2022|4 ano|5 ano| 3 ano|3 anos| 3anos" ) ~"3 años o mas",
+    str_detect(tiempo_ia_raw,"2025|2026|2ano|2 anos|2 ano| 1 o dos| un o dos") ~ "1 a 2 años",
+    str_detect(tiempo_ia_raw,"2024|1 ano|1ano|un ano") ~"6 a 11 meses",
+    
+    # solo esrtamente el numero 
+    tiempo_ia_raw =="1" ~ "6 a 11 meses",
+    tiempo_ia_raw =="2" ~ "1 a 2 años",
+    tiempo_ia_raw %in% c("3","4","5") ~ "3 años o mas",
+    tiempo_ia_raw %in% c("6","12") ~ "6 a 11 meses",
+    
+    TRUE ~ "Otro/ Sin especificar"
+  ),
+  
+  #factor ordenado
+  tiempo_ia_raw = factor(tiempo_ia_cat,levels = c(
+    "Menos de 6 meses",
+    "1 a 2 años",
+    "3 años o mas",
+    "Otro / Sin especificar"
+  ))
+)
+
+```
+
+```{r}
+#casos que no coinciden
+encuesta_limpia %>%
+  count(tiempo_ia_cat)
+
+#verificacion de algun otro apra arreglar el codigo
+ encuesta_limpia %>%
+   filter(tiempo_ia_cat == "Otro / Siespecificar") %>%
+   select("¿Hace cuánto tiempo utilizas herramientas de Inteligencia Artificial?", tiempo_ia_raw) %>%
+   distinct()
+```
+```{r}
+encuesta_limpia %>% count(tiempo_ia_cat)
+
+```
+
+```{r}
+#Ver qué respuestas específicas no hicieron match y quedaron como "Otro / Sin especificar"
+encuesta_limpia %>%
+  filter(tiempo_ia_cat == "Otro / Sin especificar") %>%
+  count(tiempo_ia_raw, sort = TRUE)
+```
+
+```{r}
+encuesta_limpia %>%
+  select(`¿Hace cuánto tiempo utilizas herramientas de Inteligencia Artificial?`, tiempo_ia_cat) %>%
+  print(n = 84)
+```
+
+```{r}
+library(tidyverse)
+library(stringr)
+
+encuesta_limpia <- encuesta_limpia %>%
+  mutate(
+    # 1. Apuntamos a la columna real de frecuencia (ajusta el texto si el nombre es ligeramente diferente)
+    freq_ia_raw = str_to_lower(`¿Con qué frecuencia/tiempo utilizas la Inteligencia Artificial para tus tareas diarias?`),
+    
+    freq_ia_raw = stringi::stri_trans_general(freq_ia_raw, "Latin-ASCII"),
+    freq_ia_raw = str_trim(freq_ia_raw),
+  
+    freq_ia_cat = case_when(
+      # No la usan 
+      str_detect(freq_ia_raw, "no la uso|nunca|poco frecuente|nada") ~ "No la usa / Rara vez",
+      
+      # Frecuencia diaria ("todos los dias", "diariamente", "varias veces")
+      str_detect(freq_ia_raw, "varias veces al dia|24/7|todos los dias|diariamente|diario|ante cualquier duda|siempre") ~ "Diariamente (o varias veces al día)",
+      
+      # Frecuencia semanal (2 o más veces por semana)
+      str_detect(freq_ia_raw, "3 veces por semana|4 veces por semana|2 veces por semana|dos veces por semana|tres veces por semana|semanalmente|1 o 2 veces a la semana|1-2 veces por semana") ~ "1 a 4veces por semana",
+      
+      # ocasional
+      str_detect(freq_ia_raw, "vez al mes|ocasional|a veces|raras vez") ~ "Ocasionalmente",
+      
+      TRUE ~ "Otro / Sin especificar"
+    ),
+    
+# factor ordenado 
+    freq_ia_cat = factor(freq_ia_cat, levels = c(
+      "Diariamente (o varias veces al día)",
+      "1 a 3 veces por semana",
+      "Ocasionalmente",
+      "No la usa / Rara vez",
+      "Otro / Sin especificar"
+    ))
+  )
+```
+
+```{r}
+# Ver el conteo general por categoría
+encuesta_limpia %>% 
+  count(freq_ia_cat, sort = TRUE)
+
+# Ver las respuestas que no hicieron match (para ajustar el código si hace falta)
+encuesta_limpia %>%
+  filter(freq_ia_cat == "Otro / Sin especificar") %>%
+  count(freq_ia_raw, sort = TRUE)
+```
+
+
