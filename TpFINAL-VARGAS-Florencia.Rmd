@@ -1,0 +1,388 @@
+
+
+CARGAR LOS DATOS 
+```{r}
+library(readr)
+
+datos <- read_csv("data/Encuesta sobre el uso y percepción de la IA.csv")
+
+
+View(datos) # Ver la encuesta completa origina
+
+```
+```{r}
+library(tidyverse)
+
+glimpse(datos) #ver las preguntas para uilizarlas como variables y primeros valores
+```
+```{r}
+summary(datos) # ver l resumen de toda la encuesta, descriptiva: media, 1q, 2q, min y max 
+```
+CREAR TIBBLE Y  HACER LIMPIEZA
+hay 10 columnas tienen respuestas multiple separadad por coma
+ha 5 colunas que tienen respuestas descriptivas como texto
+
+```{r}
+datos_limpios <- datos %>%
+  as_tibble() %>%
+  #cortar las preguntas largas a cortas 
+  
+  rename(marca_temporal =`Marca temporal`, 
+         edad = `Edad:`,
+         area = `¿En qué área o tipo de trabajo te desempeñas principalmente?`,
+         tiempo_uso = `¿Hace cuánto tiempo utilizas herramientas de Inteligencia Artificial?`,
+         frecuencia_uso = `¿Con qué frecuencia/tiempo utilizas la Inteligencia Artificial para tus tareas diarias?`,
+         tipo_licencia = `¿Qué tipo de versión/licencia utilizas principalmente?`,
+         inversion_mensual = `En caso de utilizar versiones de pago, ¿cuánto estimas que invertís mensualmente en suscripciones de IA?`,
+         herramientas = `¿Cuáles herramientas de Inteligencia Artificial utilizas habitualmente?`,
+         fines = `¿Para qué fines o tareas utilizás la IA principalmente?`,
+         interaccion = `¿Cómo te comunicas o interactúas habitualmente con la IA?`,
+         motivo_uso = `¿Por qué elegís utilizar la Inteligencia Artificial?`,
+         porcentaje_ahorro = `¿En promedio, qué porcentaje de tiempo estimás que ahorrás en tus tareas habituales al usar IA?`,
+         dependencia = `Del 1 al 5, ¿qué tan dependiente te considerás del uso de la IA para tus actividades diarias o profesionales?`,
+         chequea_fuentes = `¿Chequeas en otras fuentes las respuestas que proporciona la Inteligencia Artificial?`,
+         emociones = `¿Qué emociones o sentimientos te genera el avance y uso de la Inteligencia Artificial?`,
+         reaccion_error = `¿Cómo te sentís cuando la IA no comprende lo que querés expresar o te brinda una respuesta incorrecta?` ) %>%
+  
+  
+  mutate(area =as.factor(area),
+         frecuencia_uso = as.factor(frecuencia_uso),
+         tipo_licencia = as.factor(tipo_licencia),
+         chequea_fuentes =as.factor(chequea_fuentes),
+         dependencia = as.numeric(dependencia)
+         )
+#listas paraver los resultados a cadapregunta
+tablas <- list()
+graficos <- list()
+  
+```
+
+DATOS LIMPIOS
+
+```{r}
+view(datos_limpios)
+```
+
+ESTADISTICA DESCRIPTIVAS
+variables cualitativas que son tablas de frecuencias
+variable que tiene deuna sola opcion como: area, frecuencia,licencia,chequeo
+```{r}
+tablas$area <- datos_limpios %>%
+  count(area) %>%
+  mutate(porcentaje = round(n/sum(n)* 100,1)) %>%
+  arrange(desc(n))
+
+tablas$frecuencia_uso <- datos_limpios %>%
+  count(frecuencia_uso) %>%
+  mutate(porcentaje = round(n/sum(n)*100,1))%>%
+  arrange(desc(n))
+
+
+tablas$tipo_licencia <- datos_limpios %>%
+  count(tipo_licencia)%>%
+  mutate(porcentaje = round(n/sum(n)*100,1)) %>%
+  arrange(desc(n))
+
+tablas$chequea_fuentes <- datos_limpios %>%
+  count(chequea_fuentes)%>%
+  mutate(porcentaje = round(n/sum(n)*100,1))%>%
+  arrange(desc(n))
+
+
+
+tablas$area
+tablas$frecuencia_uso
+tablas$tipo_licencia
+tablas$chequea_fuentes
+```
+
+vaiables de respuestas multiple
+que estan separadas por comas 
+
+```{r}
+tablas$herramientas <- datos_limpios %>%
+  separate_rows(herramientas,sep = ",\\*")%>%
+  count(herramientas,sort = TRUE)%>%
+  mutate(porcentaje = round(n/nrow(datos_limpios)*100,1))
+
+tablas$herramientas
+
+tablas$emociones <- datos_limpios %>%
+  separate_rows(emociones,sep = ",\\s*")%>%
+  count(emociones,sort = TRUE)
+
+tablas$emociones
+```
+
+VARIABLES CUANTITATIVAS
+
+saccar medidas de posicion y dipersion
+numericos como edad y dependencia
+
+
+```{r}
+resumen_cuantis <- datos_limpios %>%
+  select(edad,dependencia)%>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "valor"
+  ) %>%
+  group_by(variable) %>%
+  summarise(
+    n = sum(!is.na(valor)),
+    media =mean(valor,na.rm = TRUE),
+    mediana = median(valor, na.rm = TRUE),
+    desvio = sd(valor,na.rm = TRUE),
+    varianza= var(valor,na.rm = TRUE),
+    minimo = min(valor,na.rm = TRUE),
+    maximo = max(valor, na.rm = TRUE),
+    .groups = "drop"
+  )
+resumen_cuantis
+```
+
+
+```{r}
+resumen_cuantis <- datos_limpios %>%
+  reframe(
+    variable = c("edad","dependencia"),
+    n = c(n(), n()),
+    media = c(mean(edad,na.rm = TRUE),  mean(dependencia, na.rm = TRUE)),
+    mediana = c(median(edad, na.rm = TRUE), median(dependencia, na.rm = TRUE)),
+    desvio = c(sd(edad, na.rm = TRUE), sd(dependencia, na.rm = TRUE)),
+    varianza = c(var(edad,na.rm = TRUE), var(dependencia, na.rm = TRUE)),
+    minimo =  c(min(edad, na.rm = TRUE), min(dependencia, na.rm = TRUE)),
+    maximo = c(max(edad, na.rm = TRUE), max(dependencia, na.rm = TRUE))
+  )
+resumen_cuantis
+```
+
+
+REAGRUPACION/LIMPIEZA DE LAS RESPUESTAS DE LA FRECUENCIA DE USO A 4 CATEGORIAS
+
+```{r}
+datos_limpios <- datos_limpios%>%
+  mutate(
+    frecuencia_limpia = ifelse(
+      grepl("nunca|no uso|no la uso|no utilizo|cero tiempo|numna", frecuencia_uso, ignore.case = TRUE),"nunca",
+      ifelse(
+       grepl("diario|todos los dias|diaramente|24/7|todo el tiempo|muchis| todos los dias|todo el dia|frecuentemente|a diario|de vez cuando capaz", frecuencia_uso, ignore.case = TRUE),"diario",
+       ifelse(
+         grepl("semana|frecuente|amenudo|varias veces|algunas veces|ves al",frecuencia_uso,ignore.case = TRUE), "semanal",
+         ifelse(
+           grepl("poco|casi nada|rara| de vez| una vez al mes|1 vez al mes|semanalmente|1 vez|1 o 2 veces|vez por semana|vex x po semana| 1 vez al dia| una vezpor semana", frecuencia_uso,ignore.case = TRUE),"Ocasional",
+           "otro"
+         )
+       )
+      )
+    ),
+    frecuencia_limpia = factor(
+      frecuencia_limpia,
+      levels = c("nunca","ocasional","semanal","diario","otro")
+    )
+  )
+
+#conteo por categorias
+table(datos_limpios$frecuencia_limpia, useNA = "ifany")
+
+#que quedo en "otro
+unique(datos_limpios$frecuencia_uso[datos_limpios$frecuencia_limpia== "otro"])
+
+```
+-GRAFICOS
+
+BARRAS DE FRECUENCIA DE USODE LA IA
+
+```{r}
+graficos$barras_frecuencia <- ggplot(datos_limpios, aes(frecuencia_limpia,  fill = frecuencia_limpia)) +
+  geom_bar()+
+  labs(title = "frecuencia de uso de IA",
+       x = "frecuencia", y ="cantidad de personas") +
+  theme_minimal()+
+  theme(legend.position = "none",
+        axis.title.x = element_text(angle = 45, hjust = 1))
+
+graficos$barras_frecuencia
+```
+
+HISTOGRAMA DE DISTRIBUCION DE LA EDAD
+
+```{r}
+graficos$hist_edad <- ggplot(datos_limpios,aes(x =edad))+
+  geom_histogram(bins = 10, fill= "steelblue", color = "white") +
+  labs(title = "distribucion de edades de los encuestados",
+       x= "Edad", y= "Frecuencia")+
+  theme_minimal()
+graficos$hist
+```
+
+
+BOXPLOT DEPENDECIA SEGUN LA FRECUENCIA DE USO
+
+```{r}
+graficos$box_dependencia<-ggplot(datos_limpios,aes (x= frecuencia_limpia, y = dependencia, fill = frecuencia_limpia))+
+  geom_boxplot()+
+  labs(title = "Nivel de dependecia segun frecuancia de uso",
+       x= "Frecuencia de uso", y ="Dependencia(1-5)")+
+  theme_minimal()+
+  theme(legend.position = "none",
+        axis.title.x = element_text(angle = 45, hjust = 1))
+
+graficos$box_dependencia
+```
+
+DISPERSION ENTRE EDAD VS DEPENDENCIA
+
+```{r}
+graficos$dispersion <- ggplot(datos_limpios, aes(x= edad, y = dependencia))+
+  geom_point(alpha= 0.6)+
+  geom_smooth(method = "lm",se =FALSE,color= "red")+
+  labs(title = "Relacionentre edad y dependecia de la IA",
+       x= "Edad",y ="Dependecia(1-5)")+
+  theme_minimal()
+
+graficos$dispersion
+
+```
+
+CHI CUADRADO
+-ESTADISTICA INFERENCIAL
+PREGUNTA  CUALITATIVA 1 : ¿El chequeo de fuentes depende del tipo de licencia que usan?
+
+```{r}
+tabla_contigencia <- table(datos_limpios$tipo_licencia, datos_limpios$chequea_fuentes)
+tabla_contigencia
+
+#si p<0.5 hay relacion entre las variables
+prueba_chi <- chisq.test(tabla_contigencia)
+prueba_chi
+
+```
+```{r}
+# Muestra las frecuencias esperadas por celda
+chisq.test(tabla_contigencia)$expected
+
+```
+```{r}
+#test Fisher
+fisher.test(tabla_contigencia)
+
+```
+
+
+```{r}
+# Chi-cuadrado con simulación de Monte Carlo
+chisq.test(tabla_contigencia, simulate.p.value = TRUE, B = 2000)
+
+```
+
+
+
+
+PROPORCION
+PREGUNTA CUALITATIVA 2: ¿La proporcion de personas que usan la IA a diario supera al 50%?
+contar los que respodieron "diariamente" 
+
+```{r}
+exitos_diario <- sum(str_detect(datos_limpios$frecuencia_uso,regex("diario|todos los d", ignore_case = TRUE)), na.rm = TRUE)
+total <- nrow(datos_limpios)
+
+prueba_prop <- prop.test(x= exitos_diario, n= total, p=0.5 ,alternative = "greater")
+prueba_prop
+```
+
+CUANTITATIVA
+PREGUNTA CUANTITATIVA 1: ¿Hay diferencia en la edad entre quienes usan versiones gratuitas y quienes usan versiones de pago?
+
+```{r}
+print(unique(datos_limpios$tipo_licencia))
+```
+
+
+ T- student 
+```{r}
+library(dplyr)
+
+datos_2grupos <- datos_limpios %>%
+  mutate(
+    tipo_licencia = as.character(tipo_licencia),
+    edad = as.numeric(as.character(edad))
+  ) %>%
+  filter(
+    grepl("gratuit", tipo_licencia, perl = TRUE) |
+    grepl("pago|suscrip", tipo_licencia, perl = TRUE)
+  ) %>%
+  filter(!grepl("empresa|organiz", tipo_licencia, perl = TRUE)) %>%
+  filter(!is.na(edad)) %>%
+  # Forzamos a que solo existan DOS categorías claras
+  mutate(
+    tipo_licencia = case_when(
+      grepl("gratuit", tipo_licencia, perl = TRUE) ~ "Gratuito",
+      grepl("pago|suscrip", tipo_licencia, perl = TRUE) ~ "Pago",
+      TRUE ~ NA_character_
+    ),
+    tipo_licencia = as.factor(tipo_licencia)
+  ) %>%
+  filter(!is.na(tipo_licencia))
+
+# 1. Comprueba que ahora la tabla muestre exactamente 2 grupos y cuántos datos hay en cada uno
+print(table(datos_2grupos$tipo_licencia))
+
+# 2. Comprueba que los niveles sean exactamente 2
+print(levels(datos_2grupos$tipo_licencia))
+
+# 3. Ejecuta la prueba t
+t_test_edad <- t.test(edad ~ tipo_licencia, data = datos_2grupos)
+t_test_edad
+
+```
+
+ANOVA
+PREGUNTA CUANTITATIVA 2: ¿la dependencia (1-5) difiere segun la frecuencia de uso?
+
+```{r}
+anova_dependencia <- aov(dependencia ~ frecuencia_uso, data = datos_limpios)
+summary(anova_dependencia)
+```
+REGRESION 
+```{r}
+modelo_reg <- lm(dependencia ~ edad, data= datos_limpios)
+summary(modelo_reg)
+```
+
+
+
+
+MUESTRA LOS OBJETOS TRABAJADO ORDENADAMENTE
+
+```{r}
+# encuesta limpia
+View(datos_limpios)
+
+# resumen general
+print(resumen_cuantis)
+
+# tablas
+tablas$area
+tablas$frecuencia_uso
+tablas$tipo_licencia
+tablas$chequea_fuentes
+tablas$herramientas
+tablas$emociones
+
+#  gráficos
+graficos$barras_frecuencia
+graficos$hist_edad
+graficos$box_dependencia
+graficos$dispersion
+
+#  resultados inferenciales
+prueba_chi
+prueba_prop
+t_test_edad
+summary(anova_dependencia)
+summary(modelo_reg)
+
+```
+
